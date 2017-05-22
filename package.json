@@ -10,8 +10,8 @@
   "license": "ISC",
   "devDependencies": {
     "cheerio": "^0.22.0",
-    "excel-export": "^0.5.1",
     "express": "^4.15.3",
+    "node-xlsx": "^0.7.4",
     "opn": "^5.0.0"
   }
 }

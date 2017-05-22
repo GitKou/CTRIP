@@ -1,8 +1,10 @@
 const http = require("http");
 const cheerio = require('cheerio');
-const nodeExcel = require('excel-export');
+// const nodeExcel = require('excel-export');
+const xlsx = require('node-xlsx').default;
 const express = require('express');
 const opn = require('opn');
+const fs = require('fs');
 let app = express();
 let $;
 let page = 1;
@@ -47,7 +49,7 @@ loadPage(url + page).then(function ($) {
             new Promise(function (resolve, reject) {
                 loadPage(url + page).then(function ($) {
                     Promise.all(grapData($)).then(function () {
-                        console.log('All article data in one page is ready ');
+                        console.log('All articles data in one page is ready ');
                         resolve(true);
                     });
                 });
@@ -58,6 +60,7 @@ loadPage(url + page).then(function ($) {
         saveToExcel();
     });
 });
+// saveToExcel()
 // 获取总页数
 function setToatalPage($) {
     let pageTags = $('.desNavigation.cf a');
@@ -113,39 +116,13 @@ function grapData($) {
 }
 // 保存到excel
 function saveToExcel() {
+    // var buffer = xlsx.build([{ name: "mySheetName", data: excelList.unshift(['title', 'content', 'like', 'view', 'comments', 'link']) }]);
+    var buffer = xlsx.build([{ name: "mySheetName", data: excelList}]);
     app.get('/Excel', function (req, res) {
-        let conf = {};
-        conf.stylesXmlFile = "styles.xml";
-        conf.name = "mysheet";
-        conf.cols = [{
-            caption: 'title',
-            type: 'string',
-            width: 28.7109375
-        }, {
-            caption: 'content',
-            type: 'string',
-            width: 50
-        }, {
-            caption: 'like',
-            type: 'number¸'
-        }, {
-            caption: 'view',
-            type: 'number'
-        }, {
-            caption: 'comments',
-            type: 'number'
-        }, {
-            caption: 'link',
-            type: 'string'
-        }];
-        console.log('excelList:', excelList.length);
-        conf.rows = excelList;
-        const result = nodeExcel.execute(conf);
         res.setHeader('Content-Type', 'application/vnd.openxmlformats');
         res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
-        res.end(result, 'binary');
+        res.end(buffer, 'binary');
     });
-
     app.listen(3000);
     console.log('Listening on port 3000');
     opn('http://localhost:3000/Excel')
